@@ -65,6 +65,14 @@ app.get('/', (req, res) => {
 
 // ROUTING
 
+/**
+ * @api {get} /users Get all users
+ * @apiName GetUsers
+ * @apiGroup User
+ * @apiDescription This endpoint returns a list of all users.
+ * 
+ * @apiSuccess {Object[]} users List of users.
+ */
 // Get all users
 app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Users.find()
@@ -76,6 +84,17 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req, 
 			res.status(500).send('Error: ' + err);
 		});
 });
+
+/**
+ * @api {get} /users/:username Get a user by username
+ * @apiName GetUserByUsername
+ * @apiGroup User
+ * @apiDescription This endpoint returns a user by their username.
+ * 
+ * @apiParam {String} username The username of the user to retrieve.
+ * 
+ * @apiSuccess {Object} user User data.
+ */
 // Get a user by username
 app.get('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	try {
@@ -90,6 +109,14 @@ app.get('/users/:username', passport.authenticate('jwt', { session: false }), as
 	}
 });
 
+/**
+ * @api {get} /movies Get all movies
+ * @apiName GetMovies
+ * @apiGroup Movie
+ * @apiDescription This endpoint returns a list of all movies.
+ * 
+ * @apiSuccess {Object[]} movies List of movies.
+ */
 // #1 JSON data for movies
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Movies.find()
@@ -101,6 +128,17 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), async (req,
 			res.status(500).send('Error: ' + err);
 		});
 });
+
+/**
+ * @api {get} /movies/:title Get a movie by title
+ * @apiName GetMovieByTitle
+ * @apiGroup Movie
+ * @apiDescription This endpoint returns a movie by its title.
+ * 
+ * @apiParam {String} title The title of the movie to retrieve.
+ * 
+ * @apiSuccess {Object} movie Movie data.
+ */
 // #2 JSON data for a single movie by title
 app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Movies.findOne({ title: req.params.title })
@@ -112,6 +150,17 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }), asyn
 			res.status(500).send('Error: ' + err);
 		});
 });
+
+/**
+ * @api {get} /movies/genre/:name Get movies by genre
+ * @apiName GetMoviesByGenre
+ * @apiGroup Movie
+ * @apiDescription This endpoint returns movies by their genre.
+ * 
+ * @apiParam {String} name The name of the genre.
+ * 
+ * @apiSuccess {Object} genre Genre data.
+ */
 // #3 JSON data for a genre by name
 app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Movies.findOne({ 'genre.name': req.params.name })
@@ -123,6 +172,17 @@ app.get('/movies/genre/:name', passport.authenticate('jwt', { session: false }),
 			res.status(500).send('Error: ' + err);
 		});
 });
+
+/**
+ * @api {get} /movies/director/:name Get movies by director
+ * @apiName GetMoviesByDirector
+ * @apiGroup Movie
+ * @apiDescription This endpoint returns movies by their director.
+ * 
+ * @apiParam {String} name The name of the director.
+ * 
+ * @apiSuccess {Object} director Director data.
+ */
 // #4 JSON data for a director by name
 app.get('/movies/director/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Movies.findOne({ 'director.name': req.params.name })
@@ -136,6 +196,19 @@ app.get('/movies/director/:name', passport.authenticate('jwt', { session: false 
 });
 
 //Add a user
+/**
+ * @api {post} /users Add a new user
+ * @apiName AddUser
+ * @apiGroup User
+ * @apiDescription This endpoint adds a new user.
+ * 
+ * @apiParam {String} username The username of the user.
+ * @apiParam {String} password The password of the user.
+ * @apiParam {String} email The email of the user.
+ * @apiParam {Date} birthday The birthday of the user.
+ * 
+ * @apiSuccess {Object} user The created user.
+ */
 /* We’ll expect JSON in this format
 {
   Username: String,
@@ -188,6 +261,17 @@ app.post(
 	}
 );
 
+/**
+ * @api {put} /users/:username Update a user's info
+ * @apiName UpdateUser
+ * @apiGroup User
+ * @apiDescription This endpoint updates a user's information.
+ * 
+ * @apiParam {String} username The username of the user to update.
+ * @apiParam {Object} userInfo The updated user information.
+ * 
+ * @apiSuccess {Object} user The updated user data.
+ */
 // #6 Update a user's info by username
 app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	if (req.user.username !== req.params.username) {
@@ -213,7 +297,17 @@ app.put('/users/:username', passport.authenticate('jwt', { session: false }), as
 			res.status(500).send('Error: ' + err);
 		});
 });
-
+/**
+ * @api {post} /users/:username/movies/:movieId Add a movie to a user's list of favorites
+ * @apiName AddFavoriteMovie
+ * @apiGroup User
+ * @apiDescription This endpoint adds a movie to a user's list of favorite movies.
+ * 
+ * @apiParam {String} username The username of the user.
+ * @apiParam {String} movieId The ID of the movie to add.
+ * 
+ * @apiSuccess {Object} user The updated user data.
+ */
 // Add a movie to a user's list of favorites
 app.post('/users/:username/movies/:movieId', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Users.findOneAndUpdate(
@@ -232,6 +326,18 @@ app.post('/users/:username/movies/:movieId', passport.authenticate('jwt', { sess
 		});
 });
 
+/**
+ * @api {delete} /users/:username/movies/:movieId Remove a movie from a user's list of favorites
+ * @apiName RemoveFavoriteMovie
+ * @apiGroup User
+ * @apiDescription This endpoint removes a movie from a user's list of favorite movies.
+ * 
+ * @apiParam {String} username The username of the user.
+ * @apiParam {String} movieId The ID of the movie to remove.
+ * 
+ * @apiSuccess {Object} user The updated user data.
+ */
+
 app.delete('/users/:username/movies/:movieId', passport.authenticate('jwt', { session: false }), async (req, res) => {
 	await Users.findOneAndUpdate(
 		{ username: req.params.username },
@@ -248,6 +354,17 @@ app.delete('/users/:username/movies/:movieId', passport.authenticate('jwt', { se
 			res.status(500).send('Error: ' + err);
 		});
 });
+
+/**
+ * @api {delete} /users/:username Delete a user by username
+ * @apiName DeleteUser
+ * @apiGroup User
+ * @apiDescription This endpoint deletes a user by their username.
+ * 
+ * @apiParam {String} username The username of the user to delete.
+ * 
+ * @apiSuccess {String} message Success message.
+ */
 
 // Delete a user by username
 app.delete('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
