@@ -19,6 +19,22 @@ const app = express();
 const Movies = Models.Movie;
 const Users = Models.User;
 
+//AWS connection
+const AWS = require('aws-sdk');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
+AWS.config.update({
+  region: 'your-region', // e.g., 'us-west-2'
+  credentials: new AWS.EC2MetadataCredentials({
+    httpOptions: { timeout: 5000 },
+    maxRetries: 10,
+    retryDelayOptions: { base: 200 }
+  })
+});
+
+const s3 = new AWS.S3();
+
 // Local MongoDB connection
 //mongoose.connect("mongodb://localhost:27017/ACDB", { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -379,6 +395,31 @@ app.delete('/users/:username', passport.authenticate('jwt', { session: false }),
 		console.error('Error during deletion:', err); // More detailed error logging
 		res.status(500).send('Server error');
 	}
+});
+
+
+//AWS image upload
+app.post('/upload', passport.authenticate('jwt', { session: false }), upload.single('image'), async (req, res) => {
+  const file = req.file;
+  const userId = req.user._id;
+
+  const params = {
+    Bucket: '2-5-lambda-bucket/original-images/',
+    Key: `${userId}/${Date.now()}-${file.originalname}`,
+    Body: file.buffer,
+    ContentType: file.mimetype
+  };
+
+  try {
+    const result = await s3.upload(params).promise();
+    
+    await Users.findByIdAndUpdate(userId, { $push: { images: result.Location } });
+
+    res.json({ message: 'File uploaded successfully', fileUrl: result.Location });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).json({ error: 'Error uploading file' });
+  }
 });
 
 require('./auth')(router);
