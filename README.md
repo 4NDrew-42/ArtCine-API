@@ -1,5 +1,5 @@
 
-# Movie Info API
+# ArtCine a Movie Info API
 
 ## Overview
 
