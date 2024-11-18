@@ -33,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const cors = require('cors');
 
-let allowedOrigins = ['http://localhost:8080', 'http://localhost:1234', 'http://localhost:4200', 'http://testsite.com', 'https://artcine.netlify.app', 'https://4ndrew-42.github.io'];
+let allowedOrigins = ['http://localhost:8080', 'https://artcine-angular.netlify.app/', 'http://localhost:1234', 'http://localhost:4200', 'http://testsite.com', 'https://artcine.netlify.app', 'https://4ndrew-42.github.io'];
 
 app.use(
 	cors({
